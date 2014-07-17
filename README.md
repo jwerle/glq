@@ -102,6 +102,18 @@ Push current working directory (`pwd`) commits in realtime to `addr`:
 $ glq push 127.0.0.1:7777
 ```
 
+Push `/path/to/repo` commits in realtime to `addr`:
+
+```sh
+$ glq push /path/to/repo 127.0.0.1:7777
+```
+
+Pull commits in realtime from a given `addr`:
+
+```sh
+$ glq pull 127.0.0.1:7777
+```
+
 ## license
 
 MIT

@@ -4,7 +4,7 @@
   "description": "Push git log commits over a network ",
   "main": "index.js",
   "scripts": {
-    "test": "node test"
+    "test": "rm -rf test/repo/.git && node test"
   },
   "keywords": [
     "git",
@@ -17,9 +17,12 @@
   "dependencies": {
     "git-log": "0.0.1",
     "ppq": "0.0.3",
+    "ware": "^0.3.0",
     "watch": "^0.11.0"
   },
   "devDependencies": {
-    "batch": "^0.5.1"
+    "batch": "^0.5.1",
+    "component-consoler": "^1.1.2",
+    "email": "^0.2.6"
   }
 }

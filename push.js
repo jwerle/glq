@@ -10,6 +10,7 @@ var log = require('git-log')
   , fs = require('fs')
   , path = require('path')
   , sprintf = require('util').format
+  , Ware = require('ware')
 
 var exists = fs.existsSync;
 var basename = path.basename;
@@ -40,12 +41,18 @@ module.exports = function (path, addr) {
     }
   }
 
+  var ware = Ware();
   var c = push(addr);
   var seen = [];
   var emit = false;
   var sending = false;
   var timer = null;
   var timeout = 150;
+
+  c.use = function (fn) {
+    ware.use(fn);
+    return this;
+  };
 
   watch(path, function (file, curr, prev) {
     var name = null;
@@ -61,11 +68,11 @@ module.exports = function (path, addr) {
     }
 
     if (!emit) { return; }
-
     if (timer) { clearTimeout(timer); }
 
     timer = setTimeout(function () {
       var e = null;
+      var s = null;
       if (!exists(path)) {
         e = new Error(sprintf("`%s' no longer exists", path));
         e.code = 'ENOENT'
@@ -74,15 +81,20 @@ module.exports = function (path, addr) {
         return;
       }
       sending = true;
-      log(path)
+      (s = log(path))
       .on('error', function (err) {
+        c.emit('error', err);
       })
       .on('data', function (d){
         if (-1 == seen.indexOf(d.hash)) {
-          c.emit('commit', d);
-          c.emit('data', d);
           seen.push(d.hash);
-          c.send(d);
+          s.pause();
+          ware.run(d, function (err, d) {
+            c.emit('commit', d);
+            c.emit('data', d);
+            c.send(d);
+            s.resume();
+          });
         }
       })
       .on('end', function () {

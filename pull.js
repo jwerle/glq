@@ -4,6 +4,7 @@
  */
 
 var pull = require('ppq/pull')
+  , Ware = require('ware')
 
 module.exports = function (addr) {
   if ('string' != typeof addr && 'number' != typeof addr) {
@@ -11,6 +12,18 @@ module.exports = function (addr) {
   }
 
   var serv = pull(addr);
+  var ware = Ware();
+
+  serv.use = function (fn) {
+    ware.use(fn);
+    return this;
+  };
+
+  serv.on('message', function (msg) {
+    ware.run(msg, function (err, commit) {
+      serv.emit('commit', commit);
+    })
+  });
 
   return serv;
 };

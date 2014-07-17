@@ -1,0 +1,25 @@
+{
+  "name": "glq",
+  "version": "0.0.1",
+  "description": "Push git log commits over a network ",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "keywords": [
+    "git",
+    "log",
+    "tcp",
+    "push"
+  ],
+  "author": "Joseph Werle <joseph.werle@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "git-log": "0.0.1",
+    "ppq": "0.0.3",
+    "watch": "^0.11.0"
+  },
+  "devDependencies": {
+    "batch": "^0.5.1"
+  }
+}

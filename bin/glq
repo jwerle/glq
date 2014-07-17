@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies
+ */
+
+var push = require('../push')
+  , pull = require('../pull')
+  , sprintf = require('util').format
+  , fs = require('fs')
+
+var cwd = process.cwd();
+var exit = process.exit;
+var argv = process.argv; argv.shift();
+var argc = argv.length;
+var p = console.log.bind(console);
+var pe = console.error.bind(console);
+
+/**
+ * Output program usage
+ */
+
+function usage () {
+  pe("usage: glq [-hV]");
+  pe("   or: glq push <addr>");
+  pe("   or: glq push <repo> <addr>");
+  pe("   or: glq pull <addr>");
+}
+
+/**
+ * main
+ */
+
+void function main () {
+  var i = 0;
+  var opt = null;
+  var addr = null;
+  var repo = null;
+  argv.shift(); // program
+  for (; i < argc; ++i) {
+    opt = argv.shift();
+    switch (opt) {
+      case '-h':
+      case '--help':
+        usage();
+        exit(0);
+        return;
+
+      case '-V':
+      case '--version':
+        return p(require('../package').version);
+
+      case 'push':
+        repo = argv.shift();
+        addr = argv.shift();
+        if (null == repo) {
+          pe("error: Missing `<repo>'");
+          usage();
+          exit(1);
+        }
+
+        // use working directory
+        if (null == addr) {
+          addr = repo;
+          repo = cwd;
+        }
+
+        push(repo, addr).on('commit', function (c) {
+          pe("commit: %j", c);
+        });
+
+        return;
+
+      case 'pull':
+        addr = argv.shift();
+        if (null == addr) {
+          pe("error: Missing `<addr>'");
+          usage();
+          exit(1);
+        }
+
+        pull(addr)
+        .on('message', function (msg) {
+          p(msg);
+        });
+        return;
+
+      default:
+        if ('-' == opt[0]) {
+          pe("error: Unkown option `%s'", opt);
+        } else {
+          pe("error: Unkown command `%s'", opt);
+        }
+        usage();
+        exit(1);
+    }
+  }
+}();
